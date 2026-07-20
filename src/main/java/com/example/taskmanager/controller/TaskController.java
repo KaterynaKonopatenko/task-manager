@@ -29,44 +29,53 @@ public class TaskController {
         this.commentService = commentService;
     }
 
+    // create a new task in a project that belongs to the current user
     @PostMapping("/create")
     public String create(@RequestParam String title, @RequestParam String description, @RequestParam String priority, @RequestParam Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
-        Project project = projectService.getById(projectId).orElseThrow();
+        // check that the project belongs to the current user before adding a task
+        Project project = projectService.getByIdAndOwner(projectId, userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        taskService.create(title,description,priority,null,project,user);
+        taskService.create(title, description, priority, null, project, user);
         return "redirect:/projects/" + projectId;
     }
 
+    //view a task only if it belongs to the current user
     @GetMapping("/{id}")
-    public String view(@PathVariable Long id, Model model,@AuthenticationPrincipal UserDetails userDetails) {
-        Task task = taskService.getById(id).orElseThrow();
+    public String view(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         model.addAttribute("task", task);
-        model.addAttribute("comments",commentService.getByTask(id));
+        model.addAttribute("comments", commentService.getByTask(id));
         model.addAttribute("user", user);
         return "task";
     }
 
+    // update task status only if it belongs to the current user
     @PostMapping("/{id}/status")
-    public String updateStatus(@PathVariable Long id, @RequestParam String status) {
-        Task task = taskService.getById(id).orElseThrow();
-        taskService.updateStatus(id, status);
+    public String updateStatus(@PathVariable Long id, @RequestParam String status, @AuthenticationPrincipal UserDetails userDetails) {
+        taskService.updateStatus(id, status, userDetails.getUsername());
         return "redirect:/tasks/" + id;
     }
 
+    // delete task only if it belongs to the current user
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
-        Task task = taskService.getById(id).orElseThrow();
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
         Long projectId = task.getProject().getId();
-        taskService.delete(id);
+        taskService.delete(id, userDetails.getUsername());
         return "redirect:/projects/" + projectId;
     }
 
+    // add a comment to a task only if the task belongs to the current user
     @PostMapping("/{id}/comment")
     public String addComment(@PathVariable Long id, @RequestParam String text, @AuthenticationPrincipal UserDetails userDetails) {
-        Task task = taskService.getById(id).orElseThrow();
+        Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        commentService.add(text,task,user);
+        commentService.add(text, task, user);
         return "redirect:/tasks/" + id;
     }
 }

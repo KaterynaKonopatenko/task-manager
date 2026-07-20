@@ -26,7 +26,7 @@ public class ProjectController {
         this.userService = userService;
     }
 
-
+    // create a new project for the current user
     @PostMapping("/create")
     public String create(@RequestParam String name, @RequestParam String description, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
@@ -34,16 +34,19 @@ public class ProjectController {
         return "redirect:/dashboard";
     }
 
+    // open a project only if it belong to the current user
     @GetMapping("/{id}")
-    public String view(@PathVariable Long id, Model model) {
-        Project project = projectService.getById(id).orElseThrow();
+    public String view(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        Project project = projectService.getByIdAndOwner(id, userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
         model.addAttribute("project", project);
         return "project";
     }
 
+    // delete a project only if it belongs to the current user
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
-        projectService.delete(id);
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        projectService.delete(id, userDetails.getUsername());
         return "redirect:/dashboard";
     }
 }

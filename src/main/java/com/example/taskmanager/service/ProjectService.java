@@ -17,6 +17,7 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
+    // create a new project and set the current user as owner
     public Project create(String name, String description, User owner) {
         Project project = new Project();
         project.setName(name);
@@ -25,22 +26,20 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
+    // get all projects that belong to the current user
     public List<Project> getByOwner(Long ownerId) {
         return projectRepository.findByOwnerId(ownerId);
     }
 
-    public Optional<Project> getById(Long id) {
-        return projectRepository.findById(id);
+    // get project by ID only if it belongs to the current user
+    public Optional<Project> getByIdAndOwner(Long id, String username) {
+        return projectRepository.findByIdAndOwnerUsername(id, username);
     }
 
-    public void delete(Long id) {
-        projectRepository.deleteById(id);
-    }
-
-    public Project update(Long id, String name, String description) {
-        Project project = projectRepository.findById(id).orElseThrow();
-        project.setName(name);
-        project.setDescription(description);
-        return projectRepository.save(project);
+    // delete  project only if it belongs to the current user
+    public void delete(Long id, String username) {
+        Project project = projectRepository.findByIdAndOwnerUsername(id, username)
+                .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
+        projectRepository.delete(project);
     }
 }

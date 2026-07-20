@@ -6,7 +6,7 @@ import com.example.taskmanager.model.Project;
 import com.example.taskmanager.repo.TaskRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +20,7 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
+    // create a new task and assing it to the current user
     public Task create(String title, String description, String priority, LocalDateTime dueDate, Project project, User assignedTo) {
         Task task = new Task();
         task.setTitle(title);
@@ -31,31 +32,28 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    // get all tasks for a specific project
     public List<Task> getByProject(Long projectId) {
         return taskRepository.findByProjectId(projectId);
     }
 
-    public Optional<Task> getById(Long id) {
-        return taskRepository.findById(id);
+    // get task by ID only if it belongs to a project owner by the current user
+    public Optional<Task> getByIdAndOwner(Long id, String username) {
+        return taskRepository.findByIdAndProjectOwnerUsername(id, username);
     }
 
-    public Task updateStatus(Long id, String status) {
-        Task task = taskRepository.findById(id).orElseThrow();
+    // update task status only if it belongs to the current user
+    public Task updateStatus(Long id, String status, String username) {
+        Task task = taskRepository.findByIdAndProjectOwnerUsername(id, username)
+                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
         task.setStatus(status);
         return taskRepository.save(task);
     }
 
-    public void delete(Long id) {
-        taskRepository.deleteById(id);
-    }
-
-    public Task update(Long id, String title, String description, String priority, String status, LocalDateTime dueDate) {
-        Task task = taskRepository.findById(id).orElseThrow();
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setPriority(priority);
-        task.setStatus(status);
-        task.setDueDte(dueDate);
-        return taskRepository.save(task);
+    // delete task only if it belongs to the current user
+    public void delete(Long id, String username) {
+        Task task = taskRepository.findByIdAndProjectOwnerUsername(id, username)
+                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+        taskRepository.delete(task);
     }
 }
