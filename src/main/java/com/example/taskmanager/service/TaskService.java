@@ -1,8 +1,6 @@
 package com.example.taskmanager.service;
 
-import com.example.taskmanager.model.Task;
-import com.example.taskmanager.model.User;
-import com.example.taskmanager.model.Project;
+import com.example.taskmanager.model.*;
 import com.example.taskmanager.repo.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +23,9 @@ public class TaskService {
         Task task = new Task();
         task.setTitle(title);
         task.setDescription(description);
-        task.setPriority(priority);
-        task.setDueDte(dueDate);
+        // convert string to enum prevents saving invalid priority values
+        task.setPriority(TaskPriority.valueOf(priority));
+        task.setDueDate(dueDate);
         task.setProject(project);
         task.setAssignedTo(assignedTo);
         return taskRepository.save(task);
@@ -46,7 +45,8 @@ public class TaskService {
     public Task updateStatus(Long id, String status, String username) {
         Task task = taskRepository.findByIdAndProjectOwnerUsername(id, username)
                 .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
-        task.setStatus(status);
+        // convert string to enum prevents saving invalid status valued
+        task.setStatus(TaskStatus.valueOf(status));
         return taskRepository.save(task);
     }
 

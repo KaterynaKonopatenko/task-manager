@@ -1,13 +1,15 @@
 package com.example.taskmanager.controller;
 
 
+import com.example.taskmanager.dto.RegisterForm;
 import com.example.taskmanager.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AuthController {
@@ -25,14 +27,19 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerForm(Model model) {
-        model.addAttribute("error", null);
+        // pass empty form object to the template
+        model.addAttribute("registerForm", new RegisterForm());
         return "register";
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String username, @RequestParam String email, @RequestParam String password, Model model) {
+    public String register(@Valid @ModelAttribute("registerForm") RegisterForm form, BindingResult result, Model model) {
+        // if validation failed show errors and stay on register page
+        if (result.hasErrors()) {
+            return "register";
+        }
         try {
-            userService.register(username, email, password);
+            userService.register(form.getUsername(), form.getEmail(), form.getPassword());
             return "redirect:/login";
         } catch (Exception e) {
             model.addAttribute("error", "Username or email already exists");

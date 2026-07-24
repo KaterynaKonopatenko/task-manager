@@ -2,8 +2,6 @@ package com.example.taskmanager.model;
 
 
 import jakarta.persistence.*;
-import com.example.taskmanager.model.Comment;
-import com.example.taskmanager.model.Label;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,28 +13,40 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // task title is required
     @Column(nullable = false)
     private String title;
 
     private String description;
 
-    private String status = "TODO";
-    private String priority = "MEDIUM";
+    // status stored as string in DB default is TODO
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status = TaskStatus.TODO;
+
+    // priority stored as string in DB default is MEDIUM
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority = TaskPriority.MEDIUM;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime dueDte;
 
+    // due data is optional
+    private LocalDateTime dueDate;
+
+    // each task belongs to one project
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
 
+    // task can be assigned to a user
     @ManyToOne
     @JoinColumn(name = "assigned_to")
     private User assignedTo;
 
+    // task can have multiple comments deleted with task
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
+    // task can have multiple labels
     @ManyToMany
     @JoinTable(name = "task_label",
             joinColumns = @JoinColumn(name = "task_id"),
@@ -70,19 +80,19 @@ public class Task {
         this.description = description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
-    public String getPriority() {
+    public TaskPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(TaskPriority priority) {
         this.priority = priority;
     }
 
@@ -94,12 +104,12 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getDueDte() {
-        return dueDte;
+    public LocalDateTime getDueDate() {
+        return dueDate;
     }
 
-    public void setDueDte(LocalDateTime dueDte) {
-        this.dueDte = dueDte;
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 
     public Project getProject() {
@@ -128,5 +138,9 @@ public class Task {
 
     public List<Label> getLabels() {
         return labels;
+    }
+
+    public void setLabels(List<Label> labels) {
+        this.labels = labels;
     }
 }
