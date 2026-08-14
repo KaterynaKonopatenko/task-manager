@@ -20,7 +20,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5>Add New Task</h5>
-            <form method="post" action="/tasks/create">
+            <form method="post" th:action="@{/tasks/create}">
                 <input type="hidden" name="projectId" th:value="${project.id}">
                 <div class="row g-2">
                     <div class="col-md-3">
