@@ -4,6 +4,7 @@ package com.example.taskmanager.controller;
 import com.example.taskmanager.dto.RegisterForm;
 import com.example.taskmanager.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -41,7 +42,7 @@ public class AuthController {
         try {
             userService.register(form.getUsername(), form.getEmail(), form.getPassword());
             return "redirect:/login";
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
             model.addAttribute("error", "Username or email already exists");
             return "register";
         }
