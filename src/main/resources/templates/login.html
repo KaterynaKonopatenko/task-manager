@@ -14,6 +14,7 @@
                     <h3 class="text-center mb-4">Task Manager</h3>
                     <div th:if="${param.error}" class="alert alert-danger">Invalid username or password</div>
                     <div th:if="${param.logout}" class="alert alert-success">Logged out successfully</div>
+                    <!-- th:action so the CSRF token is added automatically -->
                     <form method="post" th:action="@{/login}">
                         <div class="mb-3">
                             <label class="form-label">Username</label>

@@ -1,7 +1,8 @@
 package com.example.taskmanager.controller;
 
-import com.example.taskmanager.model.Task;
+import com.example.taskmanager.dto.TaskForm;
 import com.example.taskmanager.model.Project;
+import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.CommentService;
 import com.example.taskmanager.service.ProjectService;
@@ -9,9 +10,12 @@ import com.example.taskmanager.service.TaskService;
 import com.example.taskmanager.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/tasks")
@@ -29,15 +33,18 @@ public class TaskController {
         this.commentService = commentService;
     }
 
-    // create a new task in a project that belongs to the current user
+    // create a new task in a project that belongs to the current user; validated via TaskForm before saving
     @PostMapping("/create")
-    public String create(@RequestParam String title, @RequestParam String description, @RequestParam String priority, @RequestParam Long projectId, @AuthenticationPrincipal UserDetails userDetails) {
-        // check that the project belongs to the current user before adding a task
-        Project project = projectService.getByIdAndOwner(projectId, userDetails.getUsername())
+    public String create(@Valid @ModelAttribute("taskForm") TaskForm form, BindingResult result,@AuthenticationPrincipal UserDetails userDetails, RedirectAttributes redirectAttributes) {
+        if(result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", result.getFieldError().getDefaultMessage());
+            return "redirect:/projects/" + form.getProjectId();
+        }
+        Project project = projectService.getByIdAndOwner(form.getProjectId(), userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        taskService.create(title, description, priority, null, project, user);
-        return "redirect:/projects/" + projectId;
+        taskService.create(form.getTitle(),form.getDescription(),form.getPriority(),null,project,user);
+        return "redirect:/projects/" + form.getProjectId();
     }
 
     //view a task only if it belongs to the current user

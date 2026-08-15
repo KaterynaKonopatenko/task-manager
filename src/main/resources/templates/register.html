@@ -16,6 +16,7 @@
                     <!-- show error if username or email already exists -->
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
+                    <!-- th:action instead of plain action so Thymeleaf can insert the CSRF token automatically -->
                     <form method="post" th:action="@{/register}" th:object="${registerForm}">
                         <div class="mb-3">
                             <label class="form-label">Username</label>

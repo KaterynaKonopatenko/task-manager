@@ -11,6 +11,7 @@
         <span class="navbar-brand">Task Manager</span>
         <div>
             <span class="text-white me-3" th:text="${user.username}"></span>
+            <!-- th:action so the CSRF token is added automayically -->
             <form method="post" th:action="@{/logout}" class="d-inline">
                 <button class="btn btn-outline-light btn-sm">Logout</button>
             </form>
@@ -19,9 +20,12 @@
 </nav>
 
 <div class="container">
+    <!-- show validation error message after redirect, e.g, empty project name  -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
     <div class="card mb-4">
         <div class="card-body">
             <h5>Create New Project</h5>
+            <!-- th:action so the CSRF token is added automayically; form fields are bound to ProjectForm and validated -->
             <form method="post" th:action="@{/projects/create}">
                 <div class="row g-2">
                     <div class="col-md-4">

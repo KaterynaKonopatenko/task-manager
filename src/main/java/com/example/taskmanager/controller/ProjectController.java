@@ -5,11 +5,16 @@ import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.ProjectService;
 import com.example.taskmanager.service.UserService;
+import com.example.taskmanager.dto.ProjectForm;
+import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import java.util.List;
 
@@ -26,11 +31,15 @@ public class ProjectController {
         this.userService = userService;
     }
 
-    // create a new project for the current user
+    // create a new project for the current user; validated via Projectfoem before saving
     @PostMapping("/create")
-    public String create(@RequestParam String name, @RequestParam String description, @AuthenticationPrincipal UserDetails userDetails) {
+    public String create(@Valid @ModelAttribute("projectFrom") ProjectForm form, BindingResult result, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", result.getFieldError().getDefaultMessage());
+            return "redirect:/dashboard";
+        }
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        projectService.create(name, description, user);
+        projectService.create(form.getName(),form.getDescription(),user);
         return "redirect:/dashboard";
     }
 
