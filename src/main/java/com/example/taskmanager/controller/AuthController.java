@@ -42,7 +42,9 @@ public class AuthController {
         try {
             userService.register(form.getUsername(), form.getEmail(), form.getPassword());
             return "redirect:/login";
-        } catch (DataIntegrityViolationException e) {
+        }
+        // cath only the duplicate-username/email case(DB unique constraint violation), not every posible exeption
+        catch (DataIntegrityViolationException e) {
             model.addAttribute("error", "Username or email already exists");
             return "register";
         }
