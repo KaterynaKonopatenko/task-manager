@@ -20,7 +20,9 @@ public class User {
     @Column(unique = true,nullable = false)
     private String email;
 
-    private String role = "ROLE_USER";
+    // stored as enum instead of a raw string so invalid roles are impossible
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
     @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL)
     private List<Project> projects;
@@ -51,10 +53,10 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
     public List<Project> getProjects(){
