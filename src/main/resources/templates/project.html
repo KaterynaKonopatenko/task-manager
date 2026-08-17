@@ -26,10 +26,10 @@
             <form method="post" th:action="@{/tasks/create}">
                 <input type="hidden" name="projectId" th:value="${project.id}">
                 <div class="row g-2">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <input type="text" name="title" class="form-control" placeholder="Task title" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <input type="text" name="description" class="form-control" placeholder="Description">
                     </div>
                     <div class="col-md-2">
@@ -38,6 +38,9 @@
                             <option value="MEDIUM" selected>Medium</option>
                             <option value="HIGH">High</option>
                         </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="dueDate" class="form-control">
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-primary w-100">Add Task</button>

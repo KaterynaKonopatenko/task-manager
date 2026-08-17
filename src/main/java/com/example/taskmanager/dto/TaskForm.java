@@ -49,4 +49,15 @@ public class TaskForm {
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
+
+    @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd")
+    private java.time.LocalDate dueDate;
+
+    public java.time.LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(java.time.LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
 }

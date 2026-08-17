@@ -17,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 
+import java.time.LocalDateTime;
+
 @Controller
 @RequestMapping("/tasks")
 public class TaskController {
@@ -43,7 +45,9 @@ public class TaskController {
         Project project = projectService.getByIdAndOwner(form.getProjectId(), userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        taskService.create(form.getTitle(),form.getDescription(),form.getPriority(),null,project,user);
+        // convert the date only form value into a null LocalDateTime or leave null if the user didn't set one
+        LocalDateTime dueDateTime = form.getDueDate() != null ? form.getDueDate().atStartOfDay() : null;
+        taskService.create(form.getTitle(), form.getDescription(), form.getPriority(), dueDateTime, project, user);
         return "redirect:/projects/" + form.getProjectId();
     }
 
