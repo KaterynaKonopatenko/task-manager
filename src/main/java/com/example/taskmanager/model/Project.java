@@ -21,8 +21,9 @@ public class Project {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
+    // LAZY don't load yhe owner unless explicitly needed option/nullable=false: every project must have an owner
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,6 +1,7 @@
 package com.example.taskmanager.repo;
 
 import com.example.taskmanager.model.Task;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,7 +11,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // find all tasks for a specific project
     List<Task> findByProjectId(Long projectId);
 
-    // find a task by ID only if it belongs to a project owner by the current user
+    // eagerly load the parent project too, since task.html links back to it
+    @EntityGraph(attributePaths = "project")
     Optional<Task> findByIdAndProjectOwnerUsername(Long id, String username);
 
 }
