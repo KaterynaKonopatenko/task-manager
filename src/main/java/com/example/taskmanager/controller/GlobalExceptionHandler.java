@@ -1,5 +1,6 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -10,11 +11,19 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // handle 404 resource not found or access denied
-    @ExceptionHandler(RuntimeException.class)
+   // resource not found or access denied (IDOR) protection -> 404
+    @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(RuntimeException ex, Model model) {
+    public String handleNotFound(ResourceNotFoundException ex, Model model) {
         model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
+    }
+
+    // any other unexpected error -> 500 don't leak internal details to the user
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleOther(Exception ex, Model model) {
+        model.addAttribute("errorMessage","Something went wrong on our side. Please try again");
         return "error";
     }
 }

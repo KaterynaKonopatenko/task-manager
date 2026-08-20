@@ -1,6 +1,7 @@
 package com.example.taskmanager.controller;
 
 
+import com.example.taskmanager.exception.ResourceNotFoundException;
 import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.ProjectService;
@@ -14,9 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-
-import java.util.List;
 
 
 @Controller
@@ -39,7 +37,7 @@ public class ProjectController {
             return "redirect:/dashboard";
         }
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        projectService.create(form.getName(),form.getDescription(),user);
+        projectService.create(form.getName(), form.getDescription(), user);
         return "redirect:/dashboard";
     }
 
@@ -47,7 +45,7 @@ public class ProjectController {
     @GetMapping("/{id}")
     public String view(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         Project project = projectService.getByIdAndOwner(id, userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found or access denied"));
         model.addAttribute("project", project);
         return "project";
     }

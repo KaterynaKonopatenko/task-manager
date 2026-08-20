@@ -1,6 +1,7 @@
 package com.example.taskmanager.controller;
 
 import com.example.taskmanager.dto.TaskForm;
+import com.example.taskmanager.exception.ResourceNotFoundException;
 import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
@@ -43,7 +44,7 @@ public class TaskController {
             return "redirect:/projects/" + form.getProjectId();
         }
         Project project = projectService.getByIdAndOwner(form.getProjectId(), userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         // convert the date only form value into a null LocalDateTime or leave null if the user didn't set one
         LocalDateTime dueDateTime = form.getDueDate() != null ? form.getDueDate().atStartOfDay() : null;
@@ -55,7 +56,7 @@ public class TaskController {
     @GetMapping("/{id}")
     public String view(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         model.addAttribute("task", task);
         model.addAttribute("comments", commentService.getByTask(id));
@@ -74,7 +75,7 @@ public class TaskController {
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         Long projectId = task.getProject().getId();
         taskService.delete(id, userDetails.getUsername());
         return "redirect:/projects/" + projectId;
@@ -84,7 +85,7 @@ public class TaskController {
     @PostMapping("/{id}/comment")
     public String addComment(@PathVariable Long id, @RequestParam String text, @AuthenticationPrincipal UserDetails userDetails) {
         Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         commentService.add(text, task, user);
         return "redirect:/tasks/" + id;
@@ -94,7 +95,7 @@ public class TaskController {
     @PostMapping("/{taskId}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable Long taskId, @PathVariable Long commentId,@AuthenticationPrincipal UserDetails userDetails) {
         taskService.getByIdAndOwner(taskId, userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         commentService.delete(commentId);
         return "redirect:/tasks/" + taskId;
     }

@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exception.ResourceNotFoundException;
 import com.example.taskmanager.model.*;
 import com.example.taskmanager.repo.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class TaskService {
     @Transactional
     public Task updateStatus(Long id, String status, String username) {
         Task task = taskRepository.findByIdAndProjectOwnerUsername(id, username)
-                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         // convert string to enum prevents saving invalid status valued
         task.setStatus(TaskStatus.valueOf(status));
         return taskRepository.save(task);
@@ -59,7 +60,7 @@ public class TaskService {
     @Transactional
     public void delete(Long id, String username) {
         Task task = taskRepository.findByIdAndProjectOwnerUsername(id, username)
-                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         taskRepository.delete(task);
     }
 }

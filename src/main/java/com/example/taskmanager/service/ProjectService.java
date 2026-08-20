@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exception.ResourceNotFoundException;
 import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repo.ProjectRepository;
@@ -44,7 +45,7 @@ public class ProjectService {
     @Transactional
     public void delete(Long id, String username) {
         Project project = projectRepository.findByIdAndOwnerUsername(id, username)
-                .orElseThrow(() -> new RuntimeException("Project not found or access denied"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found or access denied"));
         projectRepository.delete(project);
     }
 }
