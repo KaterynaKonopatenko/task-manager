@@ -89,4 +89,13 @@ public class TaskController {
         commentService.add(text, task, user);
         return "redirect:/tasks/" + id;
     }
+
+    // delete a comment but only if the task if belongs to is owner by the current user
+    @PostMapping("/{taskId}/comments/{commentId}/delete")
+    public String deleteComment(@PathVariable Long taskId, @PathVariable Long commentId,@AuthenticationPrincipal UserDetails userDetails) {
+        taskService.getByIdAndOwner(taskId, userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Task not found or access denied"));
+        commentService.delete(commentId);
+        return "redirect:/tasks/" + taskId;
+    }
 }

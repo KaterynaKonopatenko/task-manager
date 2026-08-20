@@ -46,13 +46,6 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
-    // task can have multiple labels
-    @ManyToMany
-    @JoinTable(name = "task_label",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "label_id"))
-    private List<Label> labels;
-
     public Task() {
     }
 
@@ -134,13 +127,5 @@ public class Task {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
-    }
-
-    public List<Label> getLabels() {
-        return labels;
-    }
-
-    public void setLabels(List<Label> labels) {
-        this.labels = labels;
     }
 }
