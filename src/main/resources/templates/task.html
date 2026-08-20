@@ -25,9 +25,9 @@
                 <div class="row g-2">
                     <div class="col-md-4">
                         <select name="status" class="form-control">
-                            <option value="TODO" th:selected="${task.status == 'TODO'}">To Do</option>
-                            <option value="IN_PROGRESS" th:selected="${task.status == 'IN_PROGRESS'}">In Progress</option>
-                            <option value="DONE" th:selected="${task.status == 'DONE'}">Done</option>
+                            <option value="TODO" th:selected="${task.status == T(com.example.taskmanager.model.TaskStatus).TODO}">To Do</option>
+                            <option value="IN_PROGRESS" th:selected="${task.status == T(com.example.taskmanager.model.TaskStatus).IN_PROGRESS}">In Progress</option>
+                            <option value="DONE" th:selected="${task.status == T(com.example.taskmanager.model.TaskStatus).DONE}">Done</option>
                         </select>
                     </div>
                     <div class="col-md-2">
