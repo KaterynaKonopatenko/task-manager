@@ -10,7 +10,7 @@ A project management web application built with Spring Boot.
 - Each user sees only their own projects and tasks
 
 ## Tech Stack
-- Java 21
+- Java 17
 - Spring Boot 3.4.5
 - Spring Security
 - Spring Data JPA / Hibernate
