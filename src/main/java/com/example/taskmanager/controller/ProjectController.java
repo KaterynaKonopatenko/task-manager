@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.example.taskmanager.dto.TaskSummaryDto;
 
 
 @Controller
@@ -64,9 +65,10 @@ public class ProjectController {
         Pageable pageable = PageRequest.of(page, 6, sort);
         TaskStatus statusFilter = (status != null && !status.isBlank()) ? TaskStatus.valueOf(status) : null;
         Page<Task> taskPage = taskService.getByProject(id, statusFilter, pageable);
+        Page<TaskSummaryDto> taskDtoPage = taskPage.map(TaskSummaryDto::from);
 
         model.addAttribute("project", project);
-        model.addAttribute("taskPage", taskPage);
+        model.addAttribute("taskPage", taskDtoPage);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
         model.addAttribute("status", status);
