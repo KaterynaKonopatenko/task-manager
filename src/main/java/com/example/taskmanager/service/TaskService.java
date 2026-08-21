@@ -5,6 +5,8 @@ import com.example.taskmanager.model.*;
 import com.example.taskmanager.repo.TaskRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 import java.time.LocalDateTime;
@@ -38,6 +40,15 @@ public class TaskService {
     @Transactional(readOnly = true)
     public List<Task> getByProject(Long projectId) {
         return taskRepository.findByProjectId(projectId);
+    }
+
+    // paginated + sorted + optionally filtred by status for the project page
+    @Transactional(readOnly = true)
+    public Page<Task> getByProject(Long projectId, TaskStatus status,Pageable pageable) {
+        if(status != null) {
+            return taskRepository.findByProjectIdAndStatus(projectId, status, pageable);
+        }
+        return taskRepository.findByProjectId(projectId, pageable);
     }
 
     // get task by ID only if it belongs to a project owner by the current user
