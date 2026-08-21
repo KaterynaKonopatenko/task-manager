@@ -6,6 +6,8 @@ import com.example.taskmanager.model.User;
 import com.example.taskmanager.repo.ProjectRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +35,12 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<Project> getByOwner(Long ownerId) {
         return projectRepository.findByOwnerId(ownerId);
+    }
+
+    // paginated + sorted version for the dashboard
+    @Transactional(readOnly = true)
+    public Page<Project> getByOwner(Long ownerId, Pageable pageable) {
+        return projectRepository.findByOwnerId(ownerId, pageable);
     }
 
     // get project by ID only if it belongs to the current user
