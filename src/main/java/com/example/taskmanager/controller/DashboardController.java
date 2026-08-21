@@ -1,6 +1,7 @@
 package com.example.taskmanager.controller;
 
 
+import com.example.taskmanager.dto.ProjectSummaryDto;
 import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.ProjectService;
@@ -37,8 +38,9 @@ public class DashboardController {
         Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, 6, sort);
         Page<Project> projectPage = projectService.getByOwner(user.getId(), pageable);
+        Page<ProjectSummaryDto> projectDtoPage = projectPage.map(ProjectSummaryDto::from);
 
-        model.addAttribute("projectPage", projectPage);
+        model.addAttribute("projectPage", projectDtoPage);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
         model.addAttribute("user", user);
