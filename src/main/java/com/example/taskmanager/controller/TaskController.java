@@ -1,5 +1,7 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.dto.TaskDetailDto;
+import com.example.taskmanager.dto.CommentDto;
 import com.example.taskmanager.dto.TaskForm;
 import com.example.taskmanager.exception.ResourceNotFoundException;
 import com.example.taskmanager.model.Project;
@@ -58,8 +60,8 @@ public class TaskController {
         Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        model.addAttribute("task", task);
-        model.addAttribute("comments", commentService.getByTask(id));
+        model.addAttribute("task", TaskDetailDto.from(task));
+        model.addAttribute("comments", commentService.getByTask(id).stream().map(CommentDto::from).toList());
         model.addAttribute("user", user);
         return "task";
     }
