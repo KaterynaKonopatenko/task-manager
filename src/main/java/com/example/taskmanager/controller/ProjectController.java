@@ -23,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.taskmanager.dto.TaskSummaryDto;
+import com.example.taskmanager.dto.ProjectSummaryDto;
 
 
 @Controller
@@ -67,7 +68,7 @@ public class ProjectController {
         Page<Task> taskPage = taskService.getByProject(id, statusFilter, pageable);
         Page<TaskSummaryDto> taskDtoPage = taskPage.map(TaskSummaryDto::from);
 
-        model.addAttribute("project", project);
+        model.addAttribute("project", ProjectSummaryDto.from(project));
         model.addAttribute("taskPage", taskDtoPage);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("direction", direction);
