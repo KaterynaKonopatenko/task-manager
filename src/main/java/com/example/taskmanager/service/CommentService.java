@@ -6,6 +6,7 @@ import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repo.CommentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.taskmanager.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -34,9 +35,12 @@ public class CommentService {
         return commentRepository.findByTaskId(taskId);
     }
 
-    // delete a comment by ID
+    // delete a comment, but only if it really belongs to this task
+    // this prevents deleting a comment from someone else's task by guessing its id
     @Transactional
-    public void delete(Long id) {
-        commentRepository.deleteById(id);
+    public void delete(Long id, Long taskId) {
+        Comment comment = commentRepository.findByIdAndTaskId(id,taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+        commentRepository.delete(comment);
     }
 }

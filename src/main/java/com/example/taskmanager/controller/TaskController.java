@@ -93,12 +93,13 @@ public class TaskController {
         return "redirect:/tasks/" + id;
     }
 
-    // delete a comment but only if the task if belongs to is owner by the current user
+    // delete a comment, but only if the task belongs to the current user
+    // and the comment actually belongs to this task(fixes insecure direct object reference)
     @PostMapping("/{taskId}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable Long taskId, @PathVariable Long commentId,@AuthenticationPrincipal UserDetails userDetails) {
         taskService.getByIdAndOwner(taskId, userDetails.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
-        commentService.delete(commentId);
+        commentService.delete(commentId,taskId);
         return "redirect:/tasks/" + taskId;
     }
 }
