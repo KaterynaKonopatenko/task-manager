@@ -19,6 +19,14 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
+    // invalid enum value from user input(bad status or priority string) -> 400 not 500
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleBadRequest(IllegalArgumentException ex, Model model) {
+        model.addAttribute("errorMessage", "Invalid request data. Please check your input and try again.");
+        return "error";
+    }
+
     // any other unexpected error -> 500 don't leak internal details to the user
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

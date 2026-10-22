@@ -80,9 +80,10 @@ class AuthorizationAndSecurityTests {
         assertTrue(projectRepository.findByOwnerId(owner.getId()).isEmpty());
     }
 
-    // check that setting a task status to a value tahat isn't real enum constant fails loundly (500) not silently
+    // check that setting a task status to a value tahat isn't real enum constant
+    // return 400 Bad Request (invalid user input) not generic 500 error
     @Test
-    void invalidTaskStatusReturnsServerError() throws Exception {
+    void invalidTaskStatusReturnsBadRequest() throws Exception {
         User owner = userService.register("test5", "test5@test.com", "password");
 
         Project project = new Project();
@@ -92,11 +93,11 @@ class AuthorizationAndSecurityTests {
 
         Task task = taskService.create("Task task", "desc", "MEDIUM", null, project, owner);
 
-        mockMvc.perform(post("/task/" + task.getId() + "/status")
+        mockMvc.perform(post("/tasks/" + task.getId() + "/status")
                         .with(user("test5").roles("USER"))
                         .with(csrf())
                         .param("status", "NOT_A_REAL_STATUS"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
 }
