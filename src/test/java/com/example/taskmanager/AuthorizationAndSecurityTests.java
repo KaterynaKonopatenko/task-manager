@@ -3,6 +3,9 @@ package com.example.taskmanager;
 import com.example.taskmanager.model.Project;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.model.Task;
+import com.example.taskmanager.model.Comment;
+import com.example.taskmanager.repo.CommentRepository;
+import com.example.taskmanager.service.CommentService;
 import com.example.taskmanager.service.TaskService;
 import com.example.taskmanager.repo.ProjectRepository;
 import com.example.taskmanager.service.UserService;
@@ -36,6 +39,12 @@ class AuthorizationAndSecurityTests {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     // check that one user can't open another user's project just by guessing its ID(IDOR)
     @Test
@@ -100,4 +109,32 @@ class AuthorizationAndSecurityTests {
                 .andExpect(status().isBadRequest());
     }
 
+    // check that a user can't delete someone else's comment by sumbitting
+    // their own taskId together with a comment id that belongs to a different task
+    @Test
+    void userCannotDeleteAnotherUsersComment() throws Exception {
+        User owner1 = userService.register("onwer1", "owner1@test.com", "password");
+        Project project1 = new Project();
+        project1.setName("owner1's project");
+        project1.setOwner(owner1);
+        project1 = projectRepository.save(project1);
+        Task task1 = taskService.create("task1", "desc", "MEDIUM", null, project1, owner1);
+        Comment comment1 = commentService.add("owner1's comment", task1, owner1);
+
+        User owner2 = userService.register("onwer2", "owner2@test.com", "password");
+        Project project2 = new Project();
+        project2.setName("owner2's project");
+        project2.setOwner(owner2);
+        project2 = projectRepository.save(project2);
+        Task task2 = taskService.create("task2", "desc", "MEDIUM", null, project2, owner2);
+
+        // owner2 own task2 but tries to delete owner1's comment throught it
+        mockMvc.perform(post("/tasks/" + task2.getId() + "/comments/" + comment1.getId() + "/delete")
+                        .with(user("owner2").roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isNotFound());
+
+        // the comment must still exist untouched
+        assertTrue(commentRepository.findById(comment1.getId()).isPresent());
+    }
 }
