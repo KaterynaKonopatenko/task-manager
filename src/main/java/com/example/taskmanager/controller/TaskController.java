@@ -61,7 +61,7 @@ public class TaskController {
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
         model.addAttribute("task", TaskDetailDto.from(task));
-        model.addAttribute("comments", commentService.getByTask(id).stream().map(CommentDto::from).toList());
+        model.addAttribute("comments", commentService.getByTask(id,userDetails.getUsername()).stream().map(CommentDto::from).toList());
         model.addAttribute("user", user);
         return "task";
     }
@@ -83,13 +83,11 @@ public class TaskController {
         return "redirect:/projects/" + projectId;
     }
 
-    // add a comment to a task only if the task belongs to the current user
+    // access check now happens inside commentService.add() itself
     @PostMapping("/{id}/comment")
     public String addComment(@PathVariable Long id, @RequestParam String text, @AuthenticationPrincipal UserDetails userDetails) {
-        Task task = taskService.getByIdAndOwner(id, userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found or access denied"));
         User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
-        commentService.add(text, task, user);
+        commentService.add(text, id, user);
         return "redirect:/tasks/" + id;
     }
 

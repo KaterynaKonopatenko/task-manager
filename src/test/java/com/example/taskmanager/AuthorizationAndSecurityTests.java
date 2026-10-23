@@ -119,7 +119,7 @@ class AuthorizationAndSecurityTests {
         project1.setOwner(owner1);
         project1 = projectRepository.save(project1);
         Task task1 = taskService.create("task1", "desc", "MEDIUM", null, project1, owner1);
-        Comment comment1 = commentService.add("owner1's comment", task1, owner1);
+        Comment comment1 = commentService.add("owner1's comment", task1.getId(), owner1);
 
         User owner2 = userService.register("onwer2", "owner2@test.com", "password");
         Project project2 = new Project();
